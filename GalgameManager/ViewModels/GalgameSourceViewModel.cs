@@ -16,6 +16,7 @@ using GalgameManager.Services;
 using GalgameManager.Views.Dialog;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace GalgameManager.ViewModels;
 
@@ -76,6 +77,23 @@ public partial class GalgameSourceViewModel : ObservableObject, INavigationAware
                         EditCommand = new RelayCommand(() =>
                         {
                             NavigationHelper.NavigateToGalgameSettingPage(_navigationService, g.Galgame);
+                        }),
+                        CopyNameCommand = new RelayCommand(() =>
+                        {
+                            var dataPackage = new DataPackage();
+                            dataPackage.SetText(g.Galgame.Name.Value);
+                            Clipboard.SetContent(dataPackage);g
+                        }),
+                        CopyPathCommand = new RelayCommand(() =>
+                        {
+                            var dataPackage = new DataPackage();
+                            dataPackage.SetText(g.Path);
+                            Clipboard.SetContent(dataPackage);
+                        }),
+                        OpenInExplorerCommand = new RelayCommand(async () =>
+                        {
+                            var folder = await StorageFolder.GetFolderFromPathAsync(g.Galgame.LocalPath);
+                            await Launcher.LaunchFolderAsync(folder);
                         })
                     });
                 }
@@ -359,5 +377,8 @@ public partial class GalgameSourcePageCustomGalgameViewModel : ObservableObject
     public string Path = null!;
     // 以下属性是共有的，写在这里而不是ViewModel里是因为没法Bind到ViewModel里（bug）
     public ICommand EditCommand = null!;
+    public ICommand CopyNameCommand = null!;
+    public ICommand CopyPathCommand = null!;
+    public ICommand OpenInExplorerCommand = null!;
     public RssType[] RssTypes { get; } = [RssType.Bangumi, RssType.Vndb, RssType.Ymgal, RssType.Mixed, RssType.None];
 }

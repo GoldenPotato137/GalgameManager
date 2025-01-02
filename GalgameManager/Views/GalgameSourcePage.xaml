@@ -227,6 +227,18 @@
                                                         <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_Edit"
                                                                         Command="{x:Bind EditCommand}"
                                                                         CommandParameter="{x:Bind}" />
+                                                        <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_CopyName"
+                                                                        Command="{x:Bind CopyNameCommand}"
+                                                                        CommandParameter="{x:Bind}">
+                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_CopyPath"
+                                                                        Command="{x:Bind CopyPathCommand}"
+                                                                        CommandParameter="{x:Bind}">
+                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutItem x:Uid="GalgameSourcePage_GamesTable_OpenInExplorer"
+                                                                        Command="{x:Bind OpenInExplorerCommand}"
+                                                                        CommandParameter="{x:Bind}">
+                                                        </MenuFlyoutItem>
                                                     </MenuFlyout>
                                                 </Grid.ContextFlyout>
                                         </Grid>

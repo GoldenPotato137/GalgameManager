@@ -2088,6 +2088,15 @@
   <data name="GalgameSourcePage_GamesTable_Edit.Text" xml:space="preserve">
     <value>编辑</value>
   </data>
+  <data name="GalgameSourcePage_GamesTable_CopyName.Text" xml:space="preserve">
+    <value>复制游戏名</value>
+  </data>
+  <data name="GalgameSourcePage_GamesTable_CopyPath.Text" xml:space="preserve">
+    <value>复制路径</value>
+  </data>
+  <data name="GalgameSourcePage_GamesTable_OpenInExplorer.Text" xml:space="preserve">
+    <value>在文件管理器中打开</value>
+  </data>
   <data name="AnnualReportPage_Calculating.Text" xml:space="preserve">
     <value>正在计算年度数据，请稍后</value>
   </data>

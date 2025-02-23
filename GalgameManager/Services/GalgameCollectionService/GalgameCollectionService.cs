@@ -19,12 +19,11 @@ namespace GalgameManager.Services;
 
 public partial class GalgameCollectionService : IGalgameCollectionService
 {
-    // _galgames 无序, _displayGalgames有序
-    private ObservableCollection<Galgame> _galgames = new();
-    private readonly Dictionary<Guid, Galgame> _galgameMap = new(); // Uid->Galgame
+    /// _galgames 无序, _displayGalgames有序，<br/>
+    /// <b>所有对这个数组的操作均应该使用UI线程执行，以防出现COMException</b>
+    private readonly ObservableCollection<Galgame> _galgames = [];
     private static ILocalSettingsService LocalSettingsService { get; set; } = null!;
     private readonly IJumpListService _jumpListService;
-    private readonly IFilterService _filterService;
     private readonly IInfoService _infoService;
     private readonly IBgTaskService _bgTaskService;
     private readonly IGalgameSourceCollectionService _galSrcService;
@@ -44,17 +43,17 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     } = new IGalInfoPhraser[Galgame.PhraserNumber];
 
     public GalgameCollectionService(ILocalSettingsService localSettingsService, IJumpListService jumpListService, 
-        IGalgameSourceCollectionService galgameSourceService, IFilterService filterService, IInfoService infoService, 
-        IBgTaskService bgTaskService)
+        IGalgameSourceCollectionService galgameSourceService, IInfoService infoService, IBgTaskService bgTaskService)
     {
         LocalSettingsService = localSettingsService;
         LocalSettingsService.OnSettingChanged += async (key, _) => await OnSettingChanged(key);
         _jumpListService = jumpListService;
-        _filterService = filterService;
         // _filterService.OnFilterChanged += () => UpdateDisplay(UpdateType.ApplyFilter);
         _infoService = infoService;
         _bgTaskService = bgTaskService;
         _galSrcService = galgameSourceService;
+        PhrasedEvent2 += OnGameParsed;
+        GalgameAddedEvent += OnGameParsed;
         
         
         BgmPhraser bgmPhraser = new(GetBgmData().Result);
@@ -67,12 +66,23 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         PhraserList[(int)RssType.Ymgal] = ymgalPhraser;
         PhraserList[(int)RssType.Cngal] = cngalPhraser;
         PhraserList[(int)RssType.Mixed] = mixedPhraser;
-        
-        App.OnAppClosing += async () =>
+        return;
+
+        void OnGameParsed(Galgame game)
         {
-            if (! await IsUsingLiteDb())
-                await SaveGalgamesAsync();
-        };
+            if (!LocalSettingsService.ReadSettingAsync<bool>(KeyValues.DownloadCharacters).Result) return;
+            var isNew = false;
+            GetGalgameCharactersFromRssTask? task =
+                _bgTaskService!.GetBgTask<GetGalgameCharactersFromRssTask>(string.Empty);
+            if (task is null)
+            {
+                task = new GetGalgameCharactersFromRssTask();
+                isNew = true;
+            }
+            task.AddGalgame(game);
+            if (isNew)
+                _ = _bgTaskService.AddBgTask(task);
+        }
     }
     
     public async Task InitAsync()
@@ -101,21 +111,17 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     /// </summary>
     private async Task LoadGalgames()
     {
-        List<Galgame> galgames = [];
-        if (await IsUsingLiteDb())
-        {
-            await Task.Run(() =>
-            {
-                galgames = _dbSet.FindAll().ToList();
-            }); //用Task.Run运行，防止阻塞UI线程
-        }
-        else
-            galgames = await LocalSettingsService.ReadSettingAsync<List<Galgame>>(KeyValues.Galgames, true) ?? [];
-        _galgames = new ObservableCollection<Galgame>(galgames);
         await ImportAsync();
+
+        List<Galgame> galgames = [];
+        await Task.Run(() =>
+        {
+            galgames = _dbSet.FindAll().ToList();
+        }); //用Task.Run运行，防止阻塞UI线程
+        _galgames.SyncCollection(galgames);
+        
         foreach (Galgame g in _galgames)
         {
-            _galgameMap[g.Uuid] = g;
             g.ErrorOccurred += e =>
                 _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "GalgameEvent", e);
             // 数目增加
@@ -156,20 +162,19 @@ public partial class GalgameCollectionService : IGalgameCollectionService
     
     public async Task RemoveGalgame(Galgame galgame, bool removeFromDisk = false)
     {
-        _galgames.Remove(galgame);
+        await UiThreadInvokeHelper.InvokeAsync(() => _galgames.Remove(galgame));
         List<GalgameSourceBase> tmpList = new(galgame.Sources);
         foreach (GalgameSourceBase s in tmpList)
             _galSrcService.MoveOutNoOperate(s, galgame);
-        if (removeFromDisk)
-            galgame.Delete();
-        GalgameDeletedEvent?.Invoke(galgame);
-        if (await IsUsingLiteDb()) _dbSet.Delete(galgame.Uuid);
-        else await SaveGalgamesAsync();
+        if (removeFromDisk) await Task.Run(galgame.Delete);
+        _dbSet.Delete(galgame.Uuid);
+        await UiThreadInvokeHelper.InvokeAsync(() => GalgameDeletedEvent?.Invoke(galgame));
     }
     
     public async Task<Galgame> PhraseGalInfoAsync(Galgame galgame, RssType rssType = RssType.None,
         bool requireConfirm = false)
     {
+        if (!_galgames.Contains(galgame)) throw new PvnException($"Game {galgame.Name.Value} is not in game list");
         IsPhrasing = true;
         try
         {
@@ -191,24 +196,13 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 await DownLoadPlayStatusAsync(galgame, RssType.Vndb);
                 await DownLoadPlayStatusAsync(galgame, RssType.Bangumi);
             }
-            await LocalSettingsService.SaveSettingAsync(KeyValues.Galgames, _galgames, true);
+            await SaveGalgameAsync(galgame);
             IsPhrasing = false;
-            PhrasedEvent?.Invoke();
-            PhrasedEvent2?.Invoke(galgame);
-            if (await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.DownloadCharacters))
+            await UiThreadInvokeHelper.InvokeAsync(() =>
             {
-                var isNew = false;
-                GetGalgameCharactersFromRssTask? task =
-                    _bgTaskService.GetBgTask<GetGalgameCharactersFromRssTask>(string.Empty);
-                if (task is null)
-                {
-                    task = new GetGalgameCharactersFromRssTask();
-                    isNew = true;
-                }
-                task.AddGalgame(result);
-                if (isNew)
-                    _ = _bgTaskService.AddBgTask(task);
-            }
+                PhrasedEvent?.Invoke();
+                PhrasedEvent2?.Invoke(galgame);
+            });
             return result;
         }
         finally
@@ -217,14 +211,22 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         }
     }
 
-    public Task<Galgame> PhraseGalInfoOnlyAsync(Galgame galgame, RssType rssType = RssType.None)
+    public async Task<Galgame> ParseGalInfoOnlyAsync(Galgame galgame, RssType rssType = RssType.None, bool requireConfirm = false)
     {
         RssType selectedRss = rssType;
         if (selectedRss == RssType.None)
             selectedRss = galgame.RssType == RssType.None
                 ? LocalSettingsService.ReadSettingAsync<RssType>(KeyValues.RssType).Result
                 : galgame.RssType;
-        return PhraserAsync(galgame, PhraserList[(int)selectedRss]);
+        Galgame result = await PhraserAsync(galgame, PhraserList[(int)selectedRss]);
+        if (requireConfirm)
+        {
+            ConfirmGalInfoDialog dialog = new(galgame, result, this);
+            ContentDialogResult tmp = await dialog.ShowAsync();
+            if (tmp == ContentDialogResult.Secondary)
+                throw new PvnException("Canceled".GetLocalized());
+        }
+        return result;
     }
 
     public async Task ExportAsync(Action<string, int, int>? progress)
@@ -455,20 +457,17 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         return _galgames.FirstOrDefault(g => g.Name.Value == name);
     }
     
-    public async Task SaveGalgamesAsync()
+    public Task SaveGalgamesAsync()
     {
-        if (await IsUsingLiteDb())
+        return Task.Run(() =>
+        {
             _dbSet.Upsert(_galgames);
-        else
-            await LocalSettingsService.SaveSettingAsync(KeyValues.Galgames, _galgames, true);
+        });
     }
     
     public async Task SaveGalgameAsync(Galgame galgame)
     {
-        if (await IsUsingLiteDb()) 
-            _dbSet.Upsert(galgame);
-        else 
-            await LocalSettingsService.SaveSettingAsync(KeyValues.Galgames, _galgames, true);
+        _dbSet.Upsert(galgame);
         if (await LocalSettingsService.ReadSettingAsync<bool>(KeyValues.SaveBackupMetadata))
             await SaveMetaAsync(galgame);
     }
@@ -705,13 +704,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
                 break;
         }
     }
-
-    private static async Task<bool> IsUsingLiteDb()
-    {
-        return (await LocalSettingsService.ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true))
-            ?.GameLiteDbUpgrade ?? false;
-    }
-
+    
     #region UPGRADE
     private async Task MixedPhraserOrderUpdate()
     {
@@ -751,7 +744,6 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         if (status.GameLiteDbUpgrade) return;
         try
         {
-            status.GameLiteDbUpgrade = true;
             foreach (Galgame game in _galgames)
                 _dbSet.Upsert(game);
             await LocalSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
@@ -761,6 +753,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         {
             _infoService.Event(EventType.UpgradeError, InfoBarSeverity.Warning, "GalgameCollectionService_UpgradeToLiteDB_Failed".GetLocalized(), e);
         }
+        status.GameLiteDbUpgrade = true;
     }
 
     #endregion
@@ -770,6 +763,9 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         LocalSettingStatus? status =
             await LocalSettingsService.ReadSettingAsync<LocalSettingStatus>(KeyValues.DataStatus, true);
         if (status?.ImportGalgame is not false) return;
+        foreach (Galgame game in await LocalSettingsService.ReadSettingAsync<List<Galgame>>
+                     (KeyValues.Galgames, true) ?? []) 
+            _galgames.Add(game);
         foreach (Galgame game in _galgames)
         {
             game.ImagePath.ForceSet(await LocalSettingsService.GetImageFromImportAsync(game.ImagePath.Value));
@@ -783,6 +779,7 @@ public partial class GalgameCollectionService : IGalgameCollectionService
         status.ImportGalgame = true;
         await LocalSettingsService.SaveSettingAsync(KeyValues.DataStatus, status, true);
         await SaveGalgamesAsync();
+        _galgames.Clear(); //只是为了保存临时借用数组，还原回之前的状态（全空）
     }
 }
 

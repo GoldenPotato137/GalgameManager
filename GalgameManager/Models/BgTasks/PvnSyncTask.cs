@@ -75,16 +75,16 @@ public class PvnSyncTask : BgTaskBase
             {
                 GalgameDto dto = changedGalgames[index];
                 Galgame? game = gameService.GetGalgameFromId(dto.id.ToString(), RssType.PotatoVn);
-                game ??= gameService.GetGalgameFromUid(new GalgameUid
-                {
-                    BangumiId = dto.bgmId,
-                    VndbId = dto.vndbId,
-                    Name = dto.name ?? string.Empty,
-                    CnName = dto.cnName,
-                });
-
                 await UiThreadInvokeHelper.InvokeAsync(async Task () =>
                 {
+                    game ??= gameService.GetGalgameFromUid(new GalgameUid
+                    {
+                        BangumiId = dto.bgmId,
+                        VndbId = dto.vndbId,
+                        Name = dto.name ?? string.Empty,
+                        CnName = dto.cnName,
+                    });
+                    
                     if (game is null) //同步进来的游戏
                     {
                         game = new Galgame();

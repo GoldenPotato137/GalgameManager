@@ -28,7 +28,7 @@ public partial class GalgameCollectionService
         }
 
         // 尝试从数据源获取游戏信息
-        meta ??= await PhraseGalInfoAsync(new Galgame(await GetNameFromPath(sourceType, path)),
+        meta ??= await ParseGalInfoOnlyAsync(new Galgame(await GetNameFromPath(sourceType, path)),
             requireConfirm: requireConfirm);
         // 检查该游戏是否已经存在
         if (GetGalgameFromUid(meta.Uid) is { } existGame)
@@ -53,17 +53,19 @@ public partial class GalgameCollectionService
 
         // 添加游戏并移入对应的源
         meta.AddTime = DateTime.Now; // 游戏添加时间
-        _galgames.Add(meta);
-        _galgameMap[meta.Uuid] = meta;
-        try
+        await UiThreadInvokeHelper.InvokeAsync(()=>
         {
-            GalgameAddedEvent?.Invoke(meta);
-            GalgameChangedEvent?.Invoke(meta);
-        }
-        catch (Exception e)
-        {
-            _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "Failed On Calling GalgameAddEvent", e);
-        }
+            _galgames.Add(meta);
+            try
+            {
+                GalgameAddedEvent?.Invoke(meta);
+                GalgameChangedEvent?.Invoke(meta);
+            }
+            catch (Exception e)
+            {
+                _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "Failed On Calling GalgameAddEvent", e);
+            }
+        });
         
         meta.ErrorOccurred += e =>
             _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "GalgameEvent", e);
@@ -76,17 +78,18 @@ public partial class GalgameCollectionService
     
     public void AddVirtualGalgame(Galgame game)
     {
-        _galgames.Add(game);
-        _galgameMap[game.Uuid] = game;
-        try
+        UiThreadInvokeHelper.Invoke(() =>
         {
-            GalgameAddedEvent?.Invoke(game);
-        }
-        catch (Exception e)
-        {
-            _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "Failed On Calling GalgameAddEvent", e);
-        }
-        
+            _galgames.Add(game);
+            try
+            {
+                GalgameAddedEvent?.Invoke(game);
+            }
+            catch (Exception e)
+            {
+                _infoService.Event(EventType.GalgameEvent, InfoBarSeverity.Warning, "Failed On Calling GalgameAddEvent", e);
+            }
+        });
         _ = SaveGalgameAsync(game);
     }
 

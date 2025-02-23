@@ -51,7 +51,7 @@ public partial class ConfirmGalInfoDialog
     {
         IsPhrasing = Visibility.Visible;
         IsPrimaryButtonEnabled = IsSecondaryButtonEnabled = false;
-        await _service.PhraseGalInfoOnlyAsync(Galgame);
+        await _service.ParseGalInfoOnlyAsync(Galgame);
         IsPhrasing = Visibility.Collapsed;
         IsPrimaryButtonEnabled = IsSecondaryButtonEnabled = true;
         Update();

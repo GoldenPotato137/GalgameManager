@@ -12,8 +12,11 @@ public interface IGalgameCollectionService
 
     public Task StartAsync();
     
+    /// 【UI线程触发】当有galgame添加时触发
+    public event Action<Galgame>? GalgameAddedEvent; 
+    
     /// <summary>
-    /// 当有galgame删除时触发
+    /// 【UI线程触发】当有galgame删除时触发
     /// </summary>
     public event Action<Galgame>? GalgameDeletedEvent;
 
@@ -23,7 +26,7 @@ public interface IGalgameCollectionService
     public event Action<Galgame>? GalgameChangedEvent;
 
     /// <summary>
-    /// 当有galgame信息下载完成时触发 
+    /// 【UI线程触发】当有galgame信息下载完成时触发 
     /// </summary>
     public event Action<Galgame>? PhrasedEvent2;
 
@@ -111,7 +114,8 @@ public interface IGalgameCollectionService
     /// <summary>
     /// 从信息源中搜刮游戏信息，会直接修改传入的galgame <br/>
     /// 会执行完整搜刮流程，包括从rss获取信息，用户确认，获取游玩状态等 <br/>
-    /// 注意捕获异常
+    /// 注意捕获异常 <br/>
+    /// 注意，本函数<b>只解析在游戏列表中的游戏</b>，若要解析不在游戏列表中的游戏请使用<see cref="ParseGalInfoOnlyAsync"/>
     /// </summary>
     /// <param name="galgame">待搜刮游戏</param>
     /// <param name="rssType">指定信息源，若为None则使用设置中的默认值</param>
@@ -119,14 +123,15 @@ public interface IGalgameCollectionService
     /// <returns>修改过后的galgame</returns>
     /// <exception cref="PvnException">要求用户确认解析信息且用户取消了该确认对话框</exception>
     public Task<Galgame> PhraseGalInfoAsync(Galgame galgame, RssType rssType = RssType.None, bool requireConfirm = false);
-    
+
     /// <summary>
     /// 从信息源中搜刮游戏信息，只解析基本信息，直接修改传入的galgame
     /// </summary>
     /// <param name="galgame">待搜刮游戏</param>
     /// <param name="rssType">指定信息源，若为None则使用设置中的默认值</param>
+    /// <param name="requireConfirm">是否需要用户确认解析信息</param>
     /// <returns>修改过后的游戏</returns>
-    public Task<Galgame> PhraseGalInfoOnlyAsync(Galgame galgame, RssType rssType = RssType.None);
+    public Task<Galgame> ParseGalInfoOnlyAsync(Galgame galgame, RssType rssType = RssType.None, bool requireConfirm = false);
 
     /// <summary>
     /// 从信息源中搜刮游戏角色信息，直接修改传入的galgameCharacter

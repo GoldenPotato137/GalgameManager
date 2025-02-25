@@ -94,8 +94,8 @@ public class StaffService : IStaffService
                 staff.ImageUrl = result.ImageUrl;
                 staff.Description = result.Description;
                 staff.BirthDate = result.BirthDate;
-                Save(staff);
             });
+            Save(staff);
         }
         catch (Exception e)
         {

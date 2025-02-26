@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using GalgameManager.Contracts.Services;
 using GalgameManager.Enums;
 using GalgameManager.Helpers;
@@ -55,7 +56,15 @@ public partial class GalgameCollectionService
         meta.AddTime = DateTime.Now; // 游戏添加时间
         await UiThreadInvokeHelper.InvokeAsync(()=>
         {
-            _galgames.Add(meta);
+            try
+            {
+                _galgames.Add(meta);
+            }
+            catch (COMException e)
+            {
+                _infoService.DeveloperEvent(e:e);
+            }
+            
             try
             {
                 GalgameAddedEvent?.Invoke(meta);
@@ -80,7 +89,14 @@ public partial class GalgameCollectionService
     {
         UiThreadInvokeHelper.Invoke(() =>
         {
-            _galgames.Add(game);
+            try
+            {
+                _galgames.Add(game);
+            }
+            catch (COMException e)
+            {
+                _infoService.DeveloperEvent(e:e);
+            }
             try
             {
                 GalgameAddedEvent?.Invoke(game);

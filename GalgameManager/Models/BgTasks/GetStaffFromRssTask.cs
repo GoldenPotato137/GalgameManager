@@ -44,7 +44,7 @@ public class GetStaffFromRssTask (StaffService staffService) : BgTaskBase
                 UpdateProgressMsg();
                 await Task.Delay(500);
             }
-            ChangeProgress(1, 1, string.Empty); //触发任务完成提醒
+            ChangeProgress(1, 1, string.Empty, false); //触发任务完成提醒
         })!);
 
         void UpdateProgressMsg()

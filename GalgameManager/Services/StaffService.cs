@@ -188,26 +188,23 @@ public class StaffService : IStaffService
     
     private void OnGalgameDeletedEvent(Galgame galgame)
     {
-        Task.Run(() =>
+        try
         {
-            try
+            foreach (Staff staff in _staffs.Values.Where(x => x.Games.Any(g => g.Game.Uuid == galgame.Uuid)))
             {
-                foreach (Staff staff in _staffs.Values.Where(x => x.Games.Any(g => g.Game.Uuid == galgame.Uuid)))
+                UiThreadInvokeHelper.Invoke(() =>
                 {
-                    UiThreadInvokeHelper.Invoke(() =>
-                    {
-                        List<StaffGame> toRemove = staff.Games.Where(x => x.Game.Uuid == galgame.Uuid).ToList();
-                        foreach (StaffGame game in toRemove)
-                            staff.Games.Remove(game);
-                    });
-                    if (staff.Games.Count > 0) Save(staff);
-                    else Delete(staff);
-                }
+                    List<StaffGame> toRemove = staff.Games.Where(x => x.Game.Uuid == galgame.Uuid).ToList();
+                    foreach (StaffGame game in toRemove)
+                        staff.Games.Remove(game);
+                });
+                if (staff.Games.Count > 0) Save(staff);
+                else Delete(staff);
             }
-            catch (Exception e)
-            {
-                _infoService.DeveloperEvent(msg: "failed on listening galgame deleted event", e: e);
-            }
-        });
+        }
+        catch (Exception e)
+        {
+            _infoService.DeveloperEvent(msg: "failed on listening galgame deleted event", e: e);
+        }
     }
 }

@@ -8,6 +8,8 @@
     xmlns:cmtkConverters="using:CommunityToolkit.WinUI.Converters"
     xmlns:models="using:GalgameManager.Models"
     xmlns:prefab="using:GalgameManager.Views.Prefab"
+    xmlns:enums="using:GalgameManager.Enums"
+    xmlns:local="using:GalgameManager.ViewModels"
     mc:Ignorable="d"
     x:Name="Page">
 
@@ -17,6 +19,13 @@
         <converter:DateTimeToStringConverter x:Key="DateTimeToStringConverter" />
         <cmtkConverters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
         <cmtkConverters:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
+        <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converter:DateTimeToDateTimeOffsetConverter x:Key="DateTimeToDateTimeOffsetConverter" />
+        <MenuFlyout Placement="Right" x:Key="GameFlyout">
+            <MenuFlyoutItem Icon="Delete" x:Uid="StaffPage_DeleteGame"
+                           Command="{x:Bind ViewModel.DeleteGameCommand}"
+                           CommandParameter="{Binding}" />
+        </MenuFlyout>
     </Page.Resources>
 
     <Grid>
@@ -29,8 +38,20 @@
 
             <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right"
                         Margin="0 -67 0 0">
+                <!-- 增加作品 -->
+                <AppBarButton Icon="Add" x:Uid="StaffPage_AddGame"
+                              Command="{x:Bind ViewModel.AddGameCommand}" />
                 <!-- 编辑 -->
-                <!-- <AppBarButton Icon="Edit" x:Uid="GalgamePage_Edit" Command="{x:Bind ViewModel.SettingCommand}" /> -->
+                <AppBarButton Icon="Edit" x:Uid="GalgamePage_Edit" 
+                              Command="{x:Bind ViewModel.EditStaffCommand}"
+                              AllowFocusOnInteraction="True"
+                              Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}" />
+                <!-- 保存 -->
+                <AppBarButton Icon="Save" x:Uid="GalgamePage_Save" 
+                              Command="{x:Bind ViewModel.SaveStaffCommand}"
+                              AllowFocusOnInteraction="True"
+                              Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+               
                 <!-- <AppBarButton x:Uid="GalgamePage_OpenInBgm" Command="{x:Bind ViewModel.OpenInBgmCommand}" 
                               Visibility="{x:Bind ViewModel.CanOpenInBgm, 
                                   Mode=OneWay}">
@@ -51,31 +72,75 @@
             <ScrollViewer Grid.Row="1" IsTabStop="True">
                 <StackPanel Spacing="20" Margin="0 0 20 0">
                     <!-- 信息面板 -->
-                    <StackPanel Orientation="Horizontal" Spacing="20">
-                        <Grid CornerRadius="20">
-                            <Image Height="200" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   Source="{x:Bind ViewModel.Staff.ImagePath, Mode=OneWay, FallbackValue={},
-                                                Converter={StaticResource ImagePathConverter},
-                                                ConverterParameter=ms-appx:///Assets/Pictures/Akkarin.webp }"
-                                   Stretch="UniformToFill"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*" MinWidth="300"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Grid Grid.Column="0" CornerRadius="20" Margin="0,0,20,0">
+                            <Button Command="{x:Bind ViewModel.PickImageCommand}"
+                                    IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"
+                                    Style="{ThemeResource ButtonRevealStyle}"
+                                    Padding="0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch">
+                                <Image MaxWidth="250" MaxHeight="250" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"
+                                       Source="{x:Bind ViewModel.Staff.ImagePath, Mode=OneWay, FallbackValue={},
+                                                    Converter={StaticResource ImagePathConverter},
+                                                    ConverterParameter=ms-appx:///Assets/Pictures/Akkarin.webp }"
+                                       Stretch="Uniform"/>
+                            </Button>
                         </Grid>
-                        <StackPanel Spacing="10">
+                        
+                        <StackPanel Grid.Column="1" Spacing="10">
                             <!-- 姓名 -->
-                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 0 0 5"
-                                       Text="{x:Bind ViewModel.Staff.Name, Mode=OneWay, FallbackValue={}}"/>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 0 0 5"
+                                           Text="{x:Bind ViewModel.Staff.Name, Mode=OneWay, FallbackValue={}}"
+                                           IsTextSelectionEnabled="True"
+                                           Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}" />
+                                <TextBox Text="{x:Bind ViewModel.EditableName, Mode=TwoWay, FallbackValue={}}"
+                                         Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            </StackPanel>
                             <!-- 性别 -->
                             <StackPanel Style="{StaticResource KeyValue}">
                                 <TextBlock x:Uid="StaffPage_Gender" 
                                            Style="{ThemeResource BodyStrongTextBlockStyle}"/>
                                 <TextBlock
                                     Text="{x:Bind ViewModel.Staff.Gender,Mode=OneWay, FallbackValue={},
-                                    Converter={StaticResource EnumToStringConverter}}" />
+                                    Converter={StaticResource EnumToStringConverter}}"
+                                    Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}" />
+                                <ComboBox ItemsSource="{x:Bind ViewModel.Genders}"
+                                          SelectedItem="{x:Bind ViewModel.Staff.Gender, Mode=TwoWay}"
+                                          Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="models:Gender">
+                                            <TextBlock Text="{Binding Converter={StaticResource EnumToStringConverter}}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                             </StackPanel>
                             <!-- 职业 -->
                             <StackPanel Style="{StaticResource KeyValue}">
                                 <TextBlock x:Uid="StaffPage_Career" 
                                            Style="{ThemeResource BodyStrongTextBlockStyle}"/>
-                                <TextBlock Text="{x:Bind ViewModel.CareerString, Mode=OneWay}"/>
+                                <TextBlock Text="{x:Bind ViewModel.CareerString, Mode=OneWay}"
+                                          Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}"/>
+                                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Careers}"
+                                              Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ItemsRepeater.Layout>
+                                        <UniformGridLayout Orientation="Horizontal" MinItemWidth="100" MinRowSpacing="4" MinColumnSpacing="4"/>
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="local:StaffViewModelCareerCheckBox">
+                                            <CheckBox Content="{x:Bind Career, Converter={StaticResource EnumToStringConverter}}"
+                                                      IsChecked="{x:Bind IsChecked, Mode=TwoWay}" />
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
                             </StackPanel>
                             <!-- 生日 -->
                             <StackPanel Style="{StaticResource KeyValue}">
@@ -83,10 +148,13 @@
                                            Style="{ThemeResource BodyStrongTextBlockStyle}"/>
                                 <TextBlock Style="{ThemeResource BodyTextBlockStyle}"
                                            Text="{x:Bind ViewModel.Staff.BirthDate, Mode=OneWay, FallbackValue={},
-                                            Converter={StaticResource DateTimeToStringConverter}}" />
+                                            Converter={StaticResource DateTimeToStringConverter}}"
+                                           Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}" />
+                                <CalendarDatePicker Date="{x:Bind ViewModel.Staff.BirthDate, Mode=TwoWay, Converter={StaticResource DateTimeToDateTimeOffsetConverter}}"
+                                                   Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                             </StackPanel>
                         </StackPanel>
-                    </StackPanel>
+                    </Grid>
                     
                     <!-- 人物简介 -->
                     <StackPanel Visibility="{x:Bind ViewModel.Staff.Description, FallbackValue={}, Mode=OneWay,
@@ -95,7 +163,13 @@
                                    Margin="{StaticResource SmallTopBottomMargin}"
                                    Style="{ThemeResource SubtitleTextBlockStyle}"/>
                         <TextBlock Text="{x:Bind ViewModel.Staff.Description, Mode=OneWay, FallbackValue={}}"
-                                   TextWrapping="Wrap"/>
+                                   TextWrapping="Wrap"
+                                   IsTextSelectionEnabled="True"
+                        Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}"/>
+                        <TextBox Text="{x:Bind ViewModel.Staff.Description, Mode=TwoWay , FallbackValue={}}"
+                                TextWrapping="Wrap"
+                                AcceptsReturn="True"
+                                Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
                     
                     <!-- 参与作品 -->
@@ -111,7 +185,8 @@
                                     <Button Style="{ThemeResource TransparentButtonWithHover}"
                                             DataContext="{x:Bind}"
                                             Command="{Binding ElementName=Page, Path=ViewModel.NaviToGameCommand}"
-                                            CommandParameter="{x:Bind}">
+                                            CommandParameter="{x:Bind}"
+                                            ContextFlyout="{StaticResource GameFlyout}">
                                         <prefab:GalgamePrefab
                                             Galgame="{x:Bind Game}"
                                             ImageStretch="UniformToFill"

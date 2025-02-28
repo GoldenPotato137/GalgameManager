@@ -35,7 +35,8 @@
                 <TextBlock x:Name="TitleTextBlock"
                            Style="{ThemeResource TitleTextBlockStyle}"
                            Text="{x:Bind Game.Name.Value, Mode=OneWay, FallbackValue={}}"
-                           TextWrapping="Wrap" />
+                           TextWrapping="Wrap" 
+                           IsTextSelectionEnabled="True"/>
                 <!-- 评分 -->
                 <Grid VerticalAlignment="Center"
                       Background="{ThemeResource  ControlAltFillColorSecondaryBrush}"

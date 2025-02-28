@@ -70,6 +70,12 @@ public interface IGalgameSourceCollectionService
     public void ScanAll();
 
     /// <summary>
+    /// 扫描某个库
+    /// </summary>
+    /// <param name="source"></param>
+    public void Scan(GalgameSourceBase source);
+
+    /// <summary>
     /// 保存某个库
     /// </summary>
     /// <param name="source"></param>

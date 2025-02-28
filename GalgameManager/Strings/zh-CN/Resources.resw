@@ -299,6 +299,9 @@
   <data name="GalgamePage_Edit.Label" xml:space="preserve">
     <value>编辑</value>
   </data>
+  <data name="GalgamePage_Save.Label" xml:space="preserve">
+    <value>保存</value>
+  </data>
   <data name="GalgamePage_ChangeSavePosition.Label" xml:space="preserve">
     <value>转换存档位置</value>
   </data>
@@ -1122,10 +1125,13 @@
     <value>新增库</value>
   </data>
   <data name="LibraryPage_ScanAll.Label" xml:space="preserve">
-    <value>扫描所有库</value>
+    <value>扫描当前库</value>
   </data>
   <data name="LibraryPage_ScanAll_Success" xml:space="preserve">
     <value>已启动{0}个库的扫描任务</value>
+  </data>
+  <data name="LibraryPage_Scan_Success" xml:space="preserve">
+    <value>开始扫描{0}库</value>
   </data>
   <data name="GalgameFolderPage_Log.Label" xml:space="preserve">
     <value>打开扫描记录</value>
@@ -1628,6 +1634,18 @@
   <data name="SettingsPage_Theme_TimeAsHour.Description" xml:space="preserve">
     <value>将软件中所有时间显示改为"..h..m"而非"..分钟"</value>
   </data>
+  <data name="SettingsPage_Theme_GalgamePageNewLayout.Title" xml:space="preserve">
+    <value>游戏详情页使用新界面</value>
+  </data>
+  <data name="SettingsPage_Theme_GalgamePageNewLayout.Description" xml:space="preserve">
+    <value>游戏详情页将使用新的布局方式</value>
+  </data>
+  <data name="SettingsPage_Theme_ManageGalgamePageLayout.Title" xml:space="preserve">
+    <value>管理新界面显示的布局</value>
+  </data>
+  <data name="SettingsPage_Theme_ManageGalgamePageLayout.Description" xml:space="preserve">
+    <value>可以选择是否显示游戏详情页的各个部分</value>
+  </data>
   <data name="BgTaskService_TaskFailed" xml:space="preserve">
     <value>{0}失败</value>
   </data>
@@ -1752,7 +1770,7 @@
     <value>回到上个库</value>
   </data>
   <data name="LibraryPage_DownloadAllData.Label" xml:space="preserve">
-    <value>下载所有游戏数据</value>
+    <value>下载当前库的游戏数据</value>
   </data>
   <data name="LibraryPage_EditCurrentFolder.Text" xml:space="preserve">
     <value>管理当前库</value>
@@ -2331,13 +2349,16 @@
   <data name="Shell_Staff.Content" xml:space="preserve">
     <value>制作人员</value>
   </data>
+  <data name="Shell_GalgameCharacter.Content" xml:space="preserve">
+    <value>角色介绍</value>
+  </data>
   <data name="StaffPage_Gender.Text" xml:space="preserve">
     <value>性别</value>
   </data>
   <data name="Career_Writer" xml:space="preserve">
     <value>作家</value>
   </data>
-  <data name="Career_Unknow" xml:space="preserve">
+  <data name="Career_Unknown" xml:space="preserve">
     <value>未知</value>
   </data>
   <data name="Career_Painter" xml:space="preserve">
@@ -2367,6 +2388,12 @@
   <data name="StaffPage_Games.Content" xml:space="preserve">
     <value>参与作品</value>
   </data>
+  <data name="StaffPage_DeleteGame.Text" xml:space="preserve">
+    <value>移除作品</value>
+  </data>
+  <data name="StaffPage_AddGame.Label" xml:space="preserve">
+    <value>增加作品</value>
+  </data>
   <data name="GalgamePage_HeaderPanel_ExpectedPlayTime.Text" xml:space="preserve">
     <value>预计时长</value>
   </data>
@@ -2375,5 +2402,35 @@
   </data>
   <data name="GalgamePage_GamePlayStatusPanel_MyComment.Text" xml:space="preserve">
     <value>我的评价</value>
+  </data>
+  <data name="SelectGameDialog_Title" xml:space="preserve">
+    <value>选择游戏</value>
+  </data>
+    <data name="SelectGameDialog_SearchPlaceholder" xml:space="preserve">
+      <value>搜索游戏...</value>
+  </data>
+    <data name="SelectGameDialog_Confirm" xml:space="preserve">
+      <value>确定</value>
+  </data>
+    <data name="SelectGameDialog_Cancel" xml:space="preserve">
+      <value>取消</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_Title" xml:space="preserve">
+    <value>管理游戏页面布局</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_Description" xml:space="preserve">
+    <value>选择是否显示游戏页面中的各个部分</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowPainter.Text" xml:space="preserve">
+    <value>显示原画</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowSeiyu.Text" xml:space="preserve">
+    <value>显示声优</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowWriter.Text" xml:space="preserve">
+    <value>显示剧本</value>
+  </data>
+  <data name="ManageGalgamePageLayoutDialog_ShowMusician.Text" xml:space="preserve">
+    <value>显示音乐</value>
   </data>
 </root>

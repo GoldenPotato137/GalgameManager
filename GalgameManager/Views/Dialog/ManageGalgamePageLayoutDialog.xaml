@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="GalgameManager.Views.Dialog.ManageGalgamePageLayoutDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:GalgameManager.Views.Dialog"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Style="{ThemeResource DefaultContentDialogStyle}">
+
+    <StackPanel Spacing="8">
+        <TextBlock Style="{StaticResource DescriptionTextStyle}" x:Uid="ManageGalgamePageLayoutDialog_Description"/>
+        
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" 
+                       x:Uid="ManageGalgamePageLayoutDialog_ShowPainter"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
+            <ToggleSwitch Grid.Row="0" Grid.Column="1"
+                          IsOn="{x:Bind GalgamePageNewLayout_ShowPainter, Mode=TwoWay}"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" 
+                       x:Uid="ManageGalgamePageLayoutDialog_ShowSeiyu"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
+            <ToggleSwitch Grid.Row="1" Grid.Column="1"
+                          IsOn="{x:Bind GalgamePageNewLayout_ShowSeiyu, Mode=TwoWay}"/>
+
+            <TextBlock Grid.Row="2" Grid.Column="0" 
+                       x:Uid="ManageGalgamePageLayoutDialog_ShowWriter"
+                       VerticalAlignment="Center"/>
+            <ToggleSwitch Grid.Row="2" Grid.Column="1"
+                          IsOn="{x:Bind GalgamePageNewLayout_ShowWriter, Mode=TwoWay}"/>
+
+            <TextBlock Grid.Row="3" Grid.Column="0" 
+                       x:Uid="ManageGalgamePageLayoutDialog_ShowMusician"
+                       VerticalAlignment="Center"/>
+            <ToggleSwitch Grid.Row="3" Grid.Column="1"
+                          IsOn="{x:Bind GalgamePageNewLayout_ShowMusician, Mode=TwoWay}"/>
+        </Grid>
+    </StackPanel>
+</ContentDialog>

@@ -248,6 +248,14 @@ public class LocalSettingsService : ILocalSettingsService
                 return (T?)(object)new MixedPhraserOrder().SetToDefault();
             case KeyValues.DisplayVirtualGame:
             case KeyValues.SpecialDisplayVirtualGame:
+            case KeyValues.LibraryNavBar:
+            case KeyValues.LibraryStatistics:
+                return (T?)(object)true;
+            case KeyValues.GalgamePageNewLayout:
+            case KeyValues.GalgamePageNewLayout_ShowPainter:
+            case KeyValues.GalgamePageNewLayout_ShowSeiyu:
+            case KeyValues.GalgamePageNewLayout_ShowWriter:
+            case KeyValues.GalgamePageNewLayout_ShowMusician:
                 return (T?)(object)true;
             default:
                 return default;

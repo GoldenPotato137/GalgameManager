@@ -308,6 +308,17 @@ public class GalgameSourceCollectionService(
     {
         foreach(GalgameSourceBase b in _galgameSources)
             bgTaskService.AddBgTask(new GetGalgameInSourceTask(b));
+
+    }
+
+    /// <summary>   
+    /// 扫描某个库
+    /// </summary>
+    /// <param name="source"></param>
+    public void Scan(GalgameSourceBase source)
+    {
+        bgTaskService.AddBgTask(new GetGalgameInSourceTask(source));
+
     }
     
     /// <summary>

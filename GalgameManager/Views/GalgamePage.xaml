@@ -193,7 +193,7 @@
             <ScrollViewer Grid.Row="1" IsTabStop="True">
                 <StackPanel>
                     <!--Layout TypeA -->
-                    <StackPanel Visibility="Collapsed">
+                    <StackPanel Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}">
                         <galgamePagePanel:GameHeaderOldPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
                         <galgamePagePanel:GameDescriptionPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
                         <galgamePagePanel:GameTagPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
@@ -201,7 +201,7 @@
                         <galgamePagePanel:GameStaffPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>
                     </StackPanel>
                     <!--Layout TypeB -->
-                    <StackPanel>
+                    <StackPanel Visibility="{x:Bind ViewModel.UseNewLayout, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Grid ColumnDefinitions="5*,2*">
                             <StackPanel Grid.Column="0">
                                 <galgamePagePanel:GameHeaderPanel Game="{x:Bind ViewModel.Item, Mode=OneWay}"/>

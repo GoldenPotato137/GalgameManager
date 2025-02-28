@@ -291,8 +291,33 @@ public partial class LibraryViewModel(
     [RelayCommand]
     private void ScanAll()
     {
-        galSourceService.ScanAll();
-        infoService.Info(InfoBarSeverity.Success, msg: "LibraryPage_ScanAll_Success".GetLocalized(Source.Count));
+        if (CurrentSource is null)
+        {
+            galSourceService.ScanAll();
+            infoService.Info(InfoBarSeverity.Success, msg: "LibraryPage_ScanAll_Success".GetLocalized(Source.Count));
+        }
+        else
+        {
+            // 获取当前目录下所有库
+            List<GalgameSourceBase> sources = new();
+            sources.Add(CurrentSource);
+            var allSources = galSourceService.GetGalgameSources();
+            void AddSubSources(GalgameSourceBase parent)
+            {
+                foreach (var source in allSources.Where(s => s.ParentSource == parent))
+                {
+                    sources.Add(source);
+                    AddSubSources(source);
+                }
+            }   
+            AddSubSources(CurrentSource);
+            foreach (var source in sources)
+            {
+                galSourceService.Scan(source);
+                infoService.Info(InfoBarSeverity.Success, msg: "LibraryPage_Scan_Success".GetLocalized(source.Name));
+            }
+            
+        }
     }
 
     [RelayCommand]
@@ -322,8 +347,6 @@ public partial class LibraryViewModel(
         
         await dialog.ShowAsync();
 
-        // 删除游戏后，刷新当前库
-        NavigateTo(CurrentSource);
     }
 
     [RelayCommand]
@@ -350,4 +373,32 @@ public partial class LibraryViewModel(
             NavigateTo(source);
         }
     }
+
+    partial void OnCurrentSourceChanged(GalgameSourceBase? oldValue, GalgameSourceBase? newValue)
+    {
+        if (oldValue is not null)
+        {
+            oldValue.GalgamesChanged -= HandleGalgamesChanged;
+        }
+        
+        if (newValue is not null)
+        {
+            newValue.GalgamesChanged += HandleGalgamesChanged;
+        }
+    }
+
+    private void HandleGalgamesChanged(Galgame galgame, bool isRemoved)
+    {
+        // 只刷新游戏列表，不刷新整个页面
+        if (isRemoved)
+        {
+            Galgames.Remove(galgame);
+        }
+        else if (!Galgames.Contains(galgame))
+        {
+            Galgames.Add(galgame);
+        }
+        UpdateStatistics();
+    }
+
 }

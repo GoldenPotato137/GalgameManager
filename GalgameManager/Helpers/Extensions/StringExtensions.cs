@@ -76,4 +76,21 @@ public static class StringExtensions
         var invalidChars = Path.GetInvalidFileNameChars();
         return new string(str.Where(c => !invalidChars.Contains(c)).ToArray());
     }
+    public static bool IsJapaneseKanji(this char c) =>
+        new HashSet<int> { 0x6A39, 0x8449 } // 例如：树(樹) 叶(葉) 可能是日语用字
+        .Contains(c);
+
+    public static bool IsJapanese(this string input) =>
+        input.Any(c => (c >= '\u3040' && c <= '\u309F') ||  // 平假名
+                      (c >= '\u30A0' && c <= '\u30FF') ||    // 片假名
+                      (c >= '\u31F0' && c <= '\u31FF') ||    // 片假名扩展
+                      (c >= '\u3000' && c <= '\u303F') ||    // 日文标点
+                      IsJapaneseKanji(c));                  // 日语常用汉字
+
+    public static bool IsChinese(this string input) =>
+        input.Any(c => (c >= '\u4E00' && c <= '\u9FFF') ||
+                      (c >= '\u3400' && c <= '\u4DBF') ||
+                      (c >= '\uF900' && c <= '\uFAFF')) &&
+        !input.IsJapanese();
+
 }

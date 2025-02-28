@@ -62,6 +62,9 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
     private int _msgIndex;
     private bool IsNotLocalGame => !IsLocalGame;
 
+    [ObservableProperty]
+    private bool _useNewLayout;
+
     public GalgameViewModel(IGalgameCollectionService dataCollectionService, IStaffService staffService,
         INavigationService navigationService, IJumpListService jumpListService,
         ILocalSettingsService localSettingsService, IBgTaskService bgTaskService,
@@ -84,6 +87,9 @@ public partial class GalgameViewModel : ObservableObject, INavigationAware
             _navigationService.NavigateTo(typeof(HomeViewModel).FullName!);
             return;
         }
+
+        // 加载布局设置
+        UseNewLayout = await _localSettingsService.ReadSettingAsync<bool>(KeyValues.GalgamePageNewLayout);
 
         Item = param.Galgame;
         IsLocalGame = Item.IsLocalGame;

@@ -1634,6 +1634,18 @@
   <data name="SettingsPage_Theme_TimeAsHour.Description" xml:space="preserve">
     <value>将软件中所有时间显示改为"..h..m"而非"..分钟"</value>
   </data>
+  <data name="SettingsPage_Theme_GalgamePageNewLayout.Title" xml:space="preserve">
+    <value>游戏详情页使用新界面</value>
+  </data>
+  <data name="SettingsPage_Theme_GalgamePageNewLayout.Description" xml:space="preserve">
+    <value>游戏详情页将使用新的布局方式</value>
+  </data>
+  <data name="SettingsPage_Theme_GalgamePageNewLayout_ManageLayout.Title" xml:space="preserve">
+    <value>管理新界面显示的布局</value>
+  </data>
+  <data name="SettingsPage_Theme_GalgamePageNewLayout_ManageLayout.Description" xml:space="preserve">
+    <value>可以选择是否显示游戏详情页的各个部分</value>
+  </data>
   <data name="BgTaskService_TaskFailed" xml:space="preserve">
     <value>{0}失败</value>
   </data>

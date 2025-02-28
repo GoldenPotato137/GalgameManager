@@ -76,6 +76,9 @@ public static class KeyValues
     public const string SpecialDisplayVirtualGame = "specialDisplayVirtualGame"; //bool, 游戏页是否特殊显示虚拟游戏（降低透明度）
     public const string MultiStreamPageAllowScroll = "multiStreamPageAllowScroll"; //bool, 主页列表是否允许横向滚动
     public const string TimeAsHour = "timeAsHour"; //bool，时间是否显示为“__h__m"，若为false则显示为“__分钟”
+    public const string GalgamePageNewLayout = "galgamePageNewLayout"; //bool, 游戏页是否使用新界面
+    
+    
     //库页面
     public const string LibraryNavBar = "libraryNavBar"; //bool, 是否显示库页面的导航栏
     public const string LibraryStatistics = "libraryStatistics"; //bool, 是否显示库页面的统计信息（当前页游戏库/游戏数）

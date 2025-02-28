@@ -235,6 +235,14 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     // 使用新界面
     [ObservableProperty] private bool _galgamePageNewLayout;
     partial void OnGalgamePageNewLayoutChanged(bool value) => _localSettingsService.SaveSettingAsync(KeyValues.GalgamePageNewLayout, value);
+    
+    // 管理游戏详情页布局
+    [RelayCommand]
+    private void ManageGalgamePageLayout()
+    {
+        ManageGalgamePageLayoutDialog dialog = new();
+        _ = dialog.ShowAsync();
+    }
     #endregion
 
     #region GAME

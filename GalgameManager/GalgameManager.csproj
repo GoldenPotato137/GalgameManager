@@ -81,6 +81,7 @@
     <None Remove="Views\Control\HomeItem.xaml" />
     <None Remove="Views\Dialog\ChangePlayStatusDialog.xaml" />
     <None Remove="Views\Dialog\ChangeSourceDialog.xaml" />
+    <None Remove="Views\Dialog\ManageGalgamePageLayoutDialog.xaml" />
     <None Remove="Views\Dialog\MixedPhraserOrderDialog.xaml" />
     <None Remove="Views\Dialog\PvnLoginDialog.xaml" />
     <None Remove="Views\Dialog\PvnSetAccountDialog.xaml" />
@@ -138,6 +139,12 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Page Update="Views\Dialog\ManageGalgamePageLayoutDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\Dialog\ManageGalgamePageLayoutDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\Dialog\SelectGameDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

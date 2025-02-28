@@ -74,6 +74,13 @@
                                 <local:SettingToggleSwitch x:Uid="SettingsPage_Theme_GalgamePageNewLayout"
                                                            IsOn="{x:Bind ViewModel.GalgamePageNewLayout, Mode=TwoWay}" />
                             </control:Panel>
+                            <!-- 管理游戏详情页布局 -->
+                            <control:Panel Visibility="{x:Bind ViewModel.GalgamePageNewLayout, Mode=OneWay}">
+                                <control:Setting x:Uid="SettingsPage_Theme_ManageGalgamePageLayout">
+                                    <Button Content="Go" MinWidth="{StaticResource ButtonMinWidth}"
+                                            Command="{x:Bind ViewModel.ManageGalgamePageLayoutCommand}"/>
+                                </control:Setting>
+                            </control:Panel>
                         </StackPanel>
                     </control:SettingExpander.SettingContent>
                 </control:SettingExpander>

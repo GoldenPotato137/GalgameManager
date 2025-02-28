@@ -24,14 +24,22 @@ public partial class GameHeaderPanel
         InitializeComponent();
     }
 
-    protected override void Update()
+    protected async override void Update()
     {
         if (Game is null) return;
-        List<Career> careers = [Career.Painter, Career.Seiyu, Career.Writer, Career.Musician];
+        List<(Career career, string settingKey)> careerSettings =
+        [
+            (Career.Painter, KeyValues.GalgamePageNewLayout_ShowPainter),
+            (Career.Seiyu, KeyValues.GalgamePageNewLayout_ShowSeiyu),
+            (Career.Writer, KeyValues.GalgamePageNewLayout_ShowWriter),
+            (Career.Musician, KeyValues.GalgamePageNewLayout_ShowMusician)
+        ];
 
         ObservableCollection<GameHeaderPanelStaffList> list = [];
-        foreach (Career career in careers)
+        foreach (var (career, settingKey) in careerSettings)
         {
+            if (!await _localSettingsService.ReadSettingAsync<bool>(settingKey)) continue;
+            
             List<Staff> tmp = _staffService.GetStaffs(Game).Where(s => (s.GetRelation(Game) ?? []).Contains(career))
                 .ToList();
             if (tmp.Count == 0) continue;
